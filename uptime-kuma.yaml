@@ -1,0 +1,15 @@
+# Inside your uptime-kuma.yaml deployment spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      volumes:
+      - name: uptime-kuma-storage
+        hostPath:
+          path: /var/lib/uptime-kuma # This creates a real folder on your Optiplex
+          type: DirectoryOrCreate
+      containers:
+      - name: uptime-kuma
+        volumeMounts:
+        - name: uptime-kuma-storage
+          mountPath: /app/data # This is where SQLite lives

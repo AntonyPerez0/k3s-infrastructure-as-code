@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo-runner
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forgejo-runner
+  template:
+    metadata:
+      labels:
+        app: forgejo-runner
+    spec:
+      containers:
+        - name: runner
+          image: code.forgejo.org/forgejo/runner:3.4.1
+          command: ["sh", "-c"]
+          args:
+            - |
+              if [ ! -f .runner ]; then
+                forgejo-runner register --no-interactive --token $FORGEJO_RUNNER_TOKEN --name homelab-runner --instance $FORGEJO_INSTANCE_URL
+              fi
+              forgejo-runner daemon
+          env:
+            - name: FORGEJO_RUNNER_TOKEN
+              # Your token is safe here:
+              value: "<YOUR_FORGEJO_TOKEN>"
+            - name: FORGEJO_INSTANCE_URL
+              value: "http://my-git-forgejo-http.apps.svc.cluster.local:3000"
+            - name: DOCKER_HOST
+              value: "tcp://localhost:2376"
+            - name: DOCKER_TLS_VERIFY
+              value: "1"
+            - name: DOCKER_CERT_PATH
+              value: "/certs/client"
+          volumeMounts:
+            - name: docker-certs
+              mountPath: /certs
+
+        - name: docker-dind
+          image: docker:24.0.7-dind
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: "/certs"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: docker-certs
+              mountPath: /certs
+
+      volumes:
+        - name: docker-certs
+          emptyDir: {}

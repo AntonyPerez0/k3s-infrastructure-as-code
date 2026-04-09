@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: n8n
+  template:
+    metadata:
+      labels:
+        app: n8n
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: n8n
+          image: n8nio/n8n:2.14.2
+          ports:
+            - containerPort: 5678
+          env:
+            - name: N8N_HOST
+              value: "n8n.<your-tailnet-alias>.ts.net"
+            # --- THESE TWO LINES FIX THE NaN ERROR ---
+            - name: N8N_PORT
+              value: "5678"
+            - name: N8N_PROTOCOL
+              value: "https"
+            # ------------------------------------------
+            - name: WEBHOOK_URL
+              value: "https://n8n.<your-tailnet-alias>.ts.net/"
+          volumeMounts:
+            - name: n8n-data
+              mountPath: /home/node/.n8n
+      volumes:
+        - name: n8n-data
+          hostPath:
+            path: /var/lib/n8n
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: n8n
+  namespace: apps
+spec:
+  selector:
+    app: n8n
+  ports:
+    - protocol: TCP
+      port: 5678
+      targetPort: 5678

@@ -1,0 +1,47 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: velero
+  namespace: kube-system
+spec:
+  repo: https://vmware-tanzu.github.io/helm-charts
+  chart: velero
+  targetNamespace: velero
+  valuesContent: |-
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: velero/velero-plugin-for-aws:v1.9.0
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
+            
+    credentials:
+      existingSecret: velero-minio-credentials
+      
+    configuration:
+      backupStorageLocation:
+        - name: default
+          provider: aws
+          bucket: velero-backups
+          config:
+            region: minio
+            s3ForcePathStyle: "true"
+            s3Url: http://minio.apps.svc.cluster.local:9000
+      volumeSnapshotLocation:
+        - name: default
+          provider: aws
+          config:
+            region: minio
+
+    # Enable the node-agent to do deep block-level PVC backups!
+    deployNodeAgent: true
+    defaultVolumesToFsBackup: true
+    
+    # Schedule an automatic deep backup of the 'apps' namespace every day at 3:00 AM
+    schedules:
+      daily-apps-backup:
+        schedule: "0 3 * * *"
+        template:
+          includedNamespaces:
+            - apps
+          ttl: 168h # Automatically deletes backups older than 7 days to save space

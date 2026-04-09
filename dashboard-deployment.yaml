@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homelab-dashboard
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: homelab-dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: homelab-dashboard
+    spec:
+      serviceAccountName: homepage-sa
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+      - name: homelab-dashboard
+        image: ghcr.io/gethomepage/homepage:v0.8.7
+        env:
+        - name: HOMEPAGE_ALLOWED_HOSTS
+          value: "*"
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config/settings.yaml
+          subPath: settings.yaml
+        - name: config-volume
+          mountPath: /app/config/services.yaml
+          subPath: services.yaml
+        - name: config-volume
+          mountPath: /app/config/widgets.yaml
+          subPath: widgets.yaml
+        - name: config-volume
+          mountPath: /app/config/bookmarks.yaml
+          subPath: bookmarks.yaml
+        - name: logs-volume
+          mountPath: /app/config/logs
+        - name: bulk-hdd
+          mountPath: /mnt/bulk-storage
+          readOnly: true
+        # --- NEW: Mount the MicroSD ---
+        - name: microsd
+          mountPath: /mnt/microsd
+          readOnly: true
+          
+      volumes:
+      - name: config-volume
+        configMap:
+          name: homepage-config
+      - name: logs-volume
+        emptyDir: {}
+      - name: bulk-hdd
+        hostPath:
+          path: /mnt/bulk-storage
+          type: DirectoryOrCreate
+      # --- NEW: Tell the container where to find the MicroSD on the host ---
+      - name: microsd
+        hostPath:
+          path: /mnt/microsd
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homelab-dashboard
+  namespace: apps
+spec:
+  selector:
+    app.kubernetes.io/name: homelab-dashboard
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

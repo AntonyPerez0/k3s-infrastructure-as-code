@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: apps
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          command: ["minio", "server", "/data", "--console-address", ":9001"]
+          env:
+            - name: MINIO_ROOT_USER
+              value: "admin"
+            - name: MINIO_ROOT_PASSWORD
+              value: "<YOUR_MINIO_PASSWORD>"
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /data
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: minio-bulk-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: apps
+spec:
+  type: NodePort # <--- CHANGED!
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+      nodePort: 30900 # <--- CHANGED! (Exposes the S3 API to the host)
+    - name: console
+      port: 9001
+      targetPort: 9001
+      nodePort: 30901 # <--- CHANGED! (Exposes the Web UI to the host)
+  selector:
+    app: minio
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-bulk-pvc
+  namespace: apps
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: bulk-hdd
+  resources:
+    requests:
+      storage: 500Gi

@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: apps
+data:
+  settings.yaml: |
+    title: Antony's Lab
+    theme: dark
+    # Adds a sleek, darkened, blurred tech background from Unsplash
+    background:
+      image: https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070
+      blur: sm
+      brightness: 40
+    layout:
+      My Apps:
+        style: row
+        columns: 3
+      Infrastructure:
+        style: row
+        columns: 2
+
+  services.yaml: |
+    - My Apps:
+        - n8n:
+            icon: si-n8n
+            href: https://n8n.<your-tailnet-alias>.ts.net
+            description: Automation
+        - Uptime Kuma:
+            icon: si-uptimekuma
+            href: https://uptime.<your-tailnet-alias>.ts.net
+            description: Monitoring
+        - Forgejo:
+            icon: si-forgejo
+            href: https://git.<your-tailnet-alias>.ts.net
+            description: Git Server
+    - Infrastructure:
+        - ArgoCD:
+            icon: si-argo
+            href: https://argocd.<your-tailnet-alias>.ts.net
+            description: GitOps
+        - Grafana:
+            icon: si-grafana
+            href: https://grafana.<your-tailnet-alias>.ts.net
+            description: Visualization
+
+  widgets.yaml: |
+    # Sleek time and date header
+    - datetime:
+        text_size: xl
+        format:
+          timeStyle: short
+    # Free weather widget (No API key needed!)
+    - openmeteo:
+        label: Fremont, CA
+        latitude: <YOUR_LATITUDE>
+        longitude: <YOUR_LONGITUDE>
+        timezone: America/Los_Angeles
+        units: imperial
+    - resources:
+        cpu: true
+        memory: true
+        disk:
+          - /
+          - /mnt/bulk-storage
+          - /mnt/microsd
+    - search:
+        provider: google
+        focus: true
+
+  bookmarks.yaml: |
+    - Dev Tools & Utilities:
+        - Crontab Guru:
+            - abbr: CRON
+              href: https://crontab.guru/
+        - Regex101:
+            - abbr: RGX
+              href: https://regex101.com/
+        - YAML Validator:
+            - abbr: YAML
+              href: https://yamlchecker.com/
+        - JSONLint:
+            - abbr: JSON
+              href: https://jsonlint.com/
+    - Communities & Discovery:
+        - r/homelab:
+            - abbr: HL
+              href: https://www.reddit.com/r/homelab/
+        - r/selfhosted:
+            - abbr: SH
+              href: https://www.reddit.com/r/selfhosted/
+        - r/kubernetes:
+            - abbr: K8S
+              href: https://www.reddit.com/r/kubernetes/
+        - Awesome Selfhosted:
+            - abbr: GH
+              href: https://github.com/awesome-selfhosted/awesome-selfhosted
+    - Kubernetes Arsenal:
+        - Artifact Hub (Helm):
+            - abbr: AH
+              href: https://artifacthub.io/
+        - Kubectl Cheat Sheet:
+            - abbr: CMD
+              href: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+        - ArgoCD Docs:
+            - abbr: ARG
+              href: https://argo-cd.readthedocs.io/
+    - Lab Infrastructure:
+        - Tailscale Admin Console:
+            - abbr: TS
+              href: https://login.tailscale.com/admin/machines
+        - Cilium Network Docs:
+            - abbr: CIL
+              href: https://docs.cilium.io/

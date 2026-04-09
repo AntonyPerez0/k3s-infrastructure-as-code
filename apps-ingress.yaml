@@ -1,0 +1,51 @@
+---
+# Uptime Kuma Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: uptime-ingress
+  namespace: apps
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - uptime
+  defaultBackend:
+    service:
+      name: uptime-kuma
+      port:
+        number: 3001
+---
+# Forgejo (Git) Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forgejo-ingress
+  namespace: apps
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - git
+  defaultBackend:
+    service:
+      name: my-git-forgejo-http
+      port:
+        number: 3000
+---
+# n8n Automation Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: n8n-ingress
+  namespace: apps
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - n8n
+  defaultBackend:
+    service:
+      name: n8n
+      port:
+        number: 5678
