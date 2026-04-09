@@ -9,6 +9,9 @@
 ## 1. Executive Summary
 
 This repository contains the declarative infrastructure and deployment manifests for a production-grade, bare-metal Kubernetes cluster. Designed with a strict Code-First GitOps philosophy, this environment serves as a practical implementation of modern datacenter operations, continuous delivery pipelines, and automated infrastructure validation. All cluster states are driven by code, ensuring high reproducibility and eliminating configuration drift.
+<img width="1680" height="710" alt="Screenshot 2026-04-08 at 5 33 32 PM" src="https://github.com/user-attachments/assets/1d7881cf-4bfc-4cee-8334-a457676cbaa8" />
+<img width="1680" height="644" alt="Screenshot 2026-04-08 at 5 41 46 PM" src="https://github.com/user-attachments/assets/48ff8cea-16b3-4b5e-ab4c-37451ff3fdbf" />
+<img width="1680" height="939" alt="Screenshot 2026-04-08 at 5 42 18 PM" src="https://github.com/user-attachments/assets/9962128e-4e2e-4109-8cef-8ff3cdd2f204" />
 
 ## 2. Core Technology Stack
 
